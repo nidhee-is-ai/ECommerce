@@ -1,0 +1,135 @@
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { BookOpen, Star, Users, ShoppingCart, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useCart } from "@/contexts/CartContext";
+import { toast } from "@/hooks/use-toast";
+
+const courses = [
+  { lang: "Spanish", flag: "🇪🇸", level: "Beginner → Advanced", lessons: 48, students: "12.4k", rating: 4.9, price: "Free", priceNum: 0, category: "Popular" },
+  { lang: "Japanese", flag: "🇯🇵", level: "Beginner → Intermediate", lessons: 52, students: "8.7k", rating: 4.8, price: "₹799", priceNum: 799, category: "Popular" },
+  { lang: "French", flag: "🇫🇷", level: "Beginner → Advanced", lessons: 45, students: "10.2k", rating: 4.9, price: "Free", priceNum: 0, category: "Popular" },
+  { lang: "Korean", flag: "🇰🇷", level: "Beginner → Intermediate", lessons: 40, students: "9.1k", rating: 4.8, price: "₹799", priceNum: 799, category: "Trending" },
+  { lang: "German", flag: "🇩🇪", level: "Beginner → Advanced", lessons: 44, students: "6.3k", rating: 4.7, price: "₹799", priceNum: 799, category: "Popular" },
+  { lang: "Italian", flag: "🇮🇹", level: "Beginner → Intermediate", lessons: 36, students: "5.8k", rating: 4.8, price: "Free", priceNum: 0, category: "New" },
+  { lang: "Portuguese", flag: "🇧🇷", level: "Beginner → Intermediate", lessons: 38, students: "4.9k", rating: 4.7, price: "₹799", priceNum: 799, category: "New" },
+  { lang: "Mandarin", flag: "🇨🇳", level: "Beginner → Advanced", lessons: 60, students: "11.5k", rating: 4.9, price: "₹999", priceNum: 999, category: "Popular" },
+  { lang: "Arabic", flag: "🇸🇦", level: "Beginner → Intermediate", lessons: 42, students: "3.8k", rating: 4.6, price: "₹799", priceNum: 799, category: "New" },
+  { lang: "Hindi", flag: "🇮🇳", level: "Beginner → Intermediate", lessons: 35, students: "4.2k", rating: 4.7, price: "Free", priceNum: 0, category: "Trending" },
+  { lang: "Russian", flag: "🇷🇺", level: "Beginner → Advanced", lessons: 50, students: "5.1k", rating: 4.7, price: "₹799", priceNum: 799, category: "Popular" },
+  { lang: "Turkish", flag: "🇹🇷", level: "Beginner → Intermediate", lessons: 32, students: "3.4k", rating: 4.6, price: "₹799", priceNum: 799, category: "New" },
+  { lang: "Thai", flag: "🇹🇭", level: "Beginner", lessons: 28, students: "2.1k", rating: 4.5, price: "₹799", priceNum: 799, category: "New" },
+  { lang: "Vietnamese", flag: "🇻🇳", level: "Beginner", lessons: 30, students: "2.8k", rating: 4.6, price: "Free", priceNum: 0, category: "New" },
+  { lang: "Dutch", flag: "🇳🇱", level: "Beginner → Intermediate", lessons: 34, students: "3.2k", rating: 4.7, price: "₹799", priceNum: 799, category: "New" },
+  { lang: "Swedish", flag: "🇸🇪", level: "Beginner → Intermediate", lessons: 30, students: "2.5k", rating: 4.6, price: "₹799", priceNum: 799, category: "New" },
+  { lang: "Polish", flag: "🇵🇱", level: "Beginner", lessons: 26, students: "2.0k", rating: 4.5, price: "Free", priceNum: 0, category: "New" },
+  { lang: "Greek", flag: "🇬🇷", level: "Beginner", lessons: 24, students: "1.8k", rating: 4.5, price: "₹799", priceNum: 799, category: "New" },
+  { lang: "Swahili", flag: "🇰🇪", level: "Beginner", lessons: 22, students: "1.5k", rating: 4.6, price: "Free", priceNum: 0, category: "Trending" },
+  { lang: "Indonesian", flag: "🇮🇩", level: "Beginner", lessons: 28, students: "2.3k", rating: 4.5, price: "₹799", priceNum: 799, category: "New" },
+  { lang: "Hebrew", flag: "🇮🇱", level: "Beginner", lessons: 26, students: "1.9k", rating: 4.6, price: "₹799", priceNum: 799, category: "New" },
+  { lang: "Filipino", flag: "🇵🇭", level: "Beginner", lessons: 24, students: "2.7k", rating: 4.7, price: "Free", priceNum: 0, category: "Trending" },
+];
+
+const CoursesSection = () => {
+  const { addItem, items } = useCart();
+
+  const isInCart = (lang: string) => items.some((i) => i.lang === lang);
+
+  const handleAdd = (course: typeof courses[0]) => {
+    if (course.priceNum === 0) {
+      toast({ title: `${course.flag} ${course.lang} started!`, description: "Enjoy your free course." });
+      return;
+    }
+    addItem({ lang: course.lang, flag: course.flag, price: course.price, priceNum: course.priceNum });
+    toast({ title: "Added to cart", description: `${course.lang} course added.` });
+  };
+
+  return (
+    <section id="courses" className="py-24 bg-muted/20">
+      <div className="container mx-auto px-4">
+        <motion.div
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <span className="text-sm font-semibold text-primary uppercase tracking-wider">Courses</span>
+          <h2 className="font-display text-3xl md:text-5xl font-bold mt-3 mb-4 text-foreground">
+            22+ languages, <span className="text-gradient-coral">one vibe.</span>
+          </h2>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            Each course is packed with real-world dialogues, slang breakdowns, and cultural insights.
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 max-w-7xl mx-auto">
+          {courses.map((course, i) => {
+            const inCart = isInCart(course.lang);
+            return (
+              <motion.div
+                key={course.lang}
+                className="group p-5 rounded-2xl bg-card border border-border shadow-card hover:shadow-elevated transition-all duration-300 relative overflow-hidden"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.03 }}
+              >
+                {course.category === "Trending" && (
+                  <span className="absolute top-3 right-3 px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-coral/10 text-coral">
+                    Trending
+                  </span>
+                )}
+                {course.price === "Free" && course.category !== "Trending" && (
+                  <span className="absolute top-3 right-3 px-2 py-0.5 text-[10px] font-bold uppercase rounded-full bg-mint/30 text-mint-dark">
+                    Free
+                  </span>
+                )}
+
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="text-3xl">{course.flag}</span>
+                  <div>
+                    <h3 className="font-display font-bold text-card-foreground">{course.lang}</h3>
+                    <p className="text-xs text-muted-foreground">{course.level}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 text-xs text-muted-foreground mb-4">
+                  <span className="flex items-center gap-1">
+                    <BookOpen className="w-3 h-3" /> {course.lessons} lessons
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Users className="w-3 h-3" /> {course.students}
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Star className="w-3 h-3 text-gold" /> {course.rating}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="font-display font-bold text-foreground">
+                    {course.price}
+                  </span>
+                  {course.priceNum === 0 ? (
+                    <Button size="sm" className="text-xs h-8" onClick={() => handleAdd(course)}>
+                      Start Free
+                    </Button>
+                  ) : inCart ? (
+                    <Button size="sm" variant="outline" className="text-xs h-8 gap-1" disabled>
+                      <Check className="w-3 h-3" /> In Cart
+                    </Button>
+                  ) : (
+                    <Button size="sm" variant="outline" className="text-xs h-8 gap-1" onClick={() => handleAdd(course)}>
+                      <ShoppingCart className="w-3 h-3" /> Add to Cart
+                    </Button>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default CoursesSection;
