@@ -1,0 +1,120 @@
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Check, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import UpiPaymentDialog from "@/components/UpiPaymentDialog";
+
+const plans = [
+  {
+    name: "Free Vibe",
+    price: "₹0",
+    period: "forever",
+    description: "Get started with the basics",
+    features: ["3 languages", "Basic dialogues", "Limited slang access", "Community forums", "JSVN AI (5 msgs/day)"],
+    cta: "Get Started",
+    highlighted: false,
+  },
+  {
+    name: "Pro Vibe",
+    price: "₹899",
+    period: "/month",
+    description: "Unlock full fluency tools",
+    features: ["All 12+ languages", "Unlimited dialogues", "Full slang timeline", "Cultural taboo module", "JSVN AI unlimited", "Gamified leaderboards", "Priority support"],
+    cta: "Start Pro Trial",
+    highlighted: true,
+  },
+  {
+    name: "Team Vibe",
+    price: "₹2,199",
+    period: "/month",
+    description: "For study groups & classrooms",
+    features: ["Everything in Pro", "Up to 25 members", "Group challenges", "Teacher dashboard", "Custom word lists", "Analytics & reports"],
+    cta: "Contact Us",
+    highlighted: false,
+  },
+];
+
+const PricingSection = () => {
+  const [selectedPlan, setSelectedPlan] = useState<typeof plans[0] | null>(null);
+
+  return (
+    <>
+    <section id="pricing" className="py-24 bg-muted/30">
+      <div className="container mx-auto px-4">
+        <motion.div
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <span className="text-sm font-semibold text-primary uppercase tracking-wider">Pricing</span>
+          <h2 className="font-display text-3xl md:text-5xl font-bold mt-3 mb-4 text-foreground">
+            Find your <span className="text-gradient-coral">vibe.</span>
+          </h2>
+          <p className="text-muted-foreground text-lg">Simple pricing. No hidden fees. Cancel anytime.</p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          {plans.map((plan, i) => (
+            <motion.div
+              key={plan.name}
+              className={`relative p-8 rounded-2xl border transition-all duration-300 ${
+                plan.highlighted
+                  ? "bg-navy text-primary-foreground border-coral shadow-coral scale-[1.02]"
+                  : "bg-card text-card-foreground border-border shadow-card hover:shadow-elevated"
+              }`}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+            >
+              {plan.highlighted && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full bg-primary text-primary-foreground text-xs font-semibold flex items-center gap-1">
+                  <Sparkles className="w-3 h-3" /> Most Popular
+                </div>
+              )}
+              <h3 className="font-display font-bold text-xl mb-1">{plan.name}</h3>
+              <p className={`text-sm mb-4 ${plan.highlighted ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+                {plan.description}
+              </p>
+              <div className="flex items-baseline gap-1 mb-6">
+                <span className="font-display text-4xl font-bold">{plan.price}</span>
+                <span className={`text-sm ${plan.highlighted ? "text-primary-foreground/60" : "text-muted-foreground"}`}>
+                  {plan.period}
+                </span>
+              </div>
+              <Button
+                className={`w-full mb-6 ${plan.highlighted ? "bg-primary hover:bg-coral-light shadow-coral" : ""}`}
+                variant={plan.highlighted ? "default" : "outline"}
+                onClick={() => plan.price !== "$0" && setSelectedPlan(plan)}
+              >
+                {plan.cta}
+              </Button>
+              <ul className="space-y-3">
+                {plan.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-sm">
+                    <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${plan.highlighted ? "text-mint" : "text-secondary"}`} />
+                    <span className={plan.highlighted ? "text-primary-foreground/80" : ""}>{f}</span>
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {selectedPlan && (
+      <UpiPaymentDialog
+        open={!!selectedPlan}
+        onOpenChange={(open) => !open && setSelectedPlan(null)}
+        planName={selectedPlan.name}
+        price={selectedPlan.price}
+        period={selectedPlan.period}
+      />
+    )}
+    </>
+  );
+};
+
+export default PricingSection;
