@@ -1,0 +1,125 @@
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Check, Copy, Smartphone } from "lucide-react";
+import { toast } from "@/hooks/use-toast";
+
+interface UpiPaymentDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  planName: string;
+  price: string;
+  period: string;
+}
+
+const UPI_ID = "linguavibe@upi";
+
+const UpiPaymentDialog = ({ open, onOpenChange, planName, price, period }: UpiPaymentDialogProps) => {
+  const [upiId, setUpiId] = useState("");
+  const [step, setStep] = useState<"choose" | "enter" | "success">("choose");
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyUpi = () => {
+    navigator.clipboard.writeText(UPI_ID);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handlePay = () => {
+    if (!upiId.includes("@")) {
+      toast({ title: "Invalid UPI ID", description: "Please enter a valid UPI ID (e.g. name@bank)", variant: "destructive" });
+      return;
+    }
+    setStep("success");
+  };
+
+  const handleClose = () => {
+    onOpenChange(false);
+    setTimeout(() => { setStep("choose"); setUpiId(""); }, 300);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="font-display text-xl">
+            {step === "success" ? "Payment Initiated! 🎉" : `Pay for ${planName}`}
+          </DialogTitle>
+          <DialogDescription>
+            {step === "success"
+              ? "Your payment request has been sent."
+              : `${price}${period} — Pay securely via UPI`}
+          </DialogDescription>
+        </DialogHeader>
+
+        {step === "choose" && (
+          <div className="space-y-4 pt-2">
+            <div className="rounded-xl border border-border bg-muted/50 p-4 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-foreground">Pay to UPI ID</p>
+                <p className="text-sm text-muted-foreground font-mono">{UPI_ID}</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={handleCopyUpi}>
+                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              </Button>
+            </div>
+
+            <div className="text-center text-sm text-muted-foreground">or</div>
+
+            <Button className="w-full gap-2" onClick={() => setStep("enter")}>
+              <Smartphone className="w-4 h-4" /> Pay with your UPI ID
+            </Button>
+
+            <a
+              href={`upi://pay?pa=${UPI_ID}&pn=LinguaVibe&am=${price.replace("$", "")}&cu=INR&tn=${planName} Plan`}
+              className="block"
+            >
+              <Button variant="outline" className="w-full">
+                Open in UPI App (GPay / PhonePe / Paytm)
+              </Button>
+            </a>
+          </div>
+        )}
+
+        {step === "enter" && (
+          <div className="space-y-4 pt-2">
+            <div>
+              <label className="text-sm font-medium text-foreground mb-1.5 block">Your UPI ID</label>
+              <Input
+                placeholder="yourname@bank"
+                value={upiId}
+                onChange={(e) => setUpiId(e.target.value)}
+              />
+            </div>
+            <div className="rounded-lg bg-muted/50 border border-border p-3 text-sm text-muted-foreground">
+              Amount: <span className="font-semibold text-foreground">{price}{period}</span>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={() => setStep("choose")}>Back</Button>
+              <Button className="flex-1" onClick={handlePay}>Confirm & Pay</Button>
+            </div>
+          </div>
+        )}
+
+        {step === "success" && (
+          <div className="text-center space-y-4 py-4">
+            <div className="w-16 h-16 rounded-full bg-secondary/20 flex items-center justify-center mx-auto">
+              <Check className="w-8 h-8 text-secondary" />
+            </div>
+            <div>
+              <p className="font-medium text-foreground">Payment request sent to</p>
+              <p className="text-sm text-muted-foreground font-mono">{upiId || UPI_ID}</p>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Please approve the payment in your UPI app. Your {planName} plan will activate once confirmed.
+            </p>
+            <Button className="w-full" onClick={handleClose}>Done</Button>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+export default UpiPaymentDialog;
