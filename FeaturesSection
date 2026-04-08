@@ -1,0 +1,92 @@
+import { motion } from "framer-motion";
+import { MessageSquareText, Clock, ShieldAlert, Trophy, Users, Brain } from "lucide-react";
+
+const features = [
+  {
+    icon: MessageSquareText,
+    title: "Context-Based Dialogues",
+    description: "Learn through real-life scenarios — ordering coffee, making friends, or negotiating at a market.",
+    color: "text-primary",
+    bg: "bg-primary/10",
+  },
+  {
+    icon: Clock,
+    title: "Slang Timeline",
+    description: "Explore how slang evolves across decades and regions. Know what's cool and what's outdated.",
+    color: "text-secondary",
+    bg: "bg-secondary/10",
+  },
+  {
+    icon: ShieldAlert,
+    title: "Cultural Taboo Module",
+    description: "Avoid embarrassing mistakes with polite alternatives and cultural context for sensitive phrases.",
+    color: "text-coral",
+    bg: "bg-coral/10",
+  },
+  {
+    icon: Trophy,
+    title: "Gamified Progress",
+    description: "Earn XP, unlock badges, and compete on leaderboards as you level up your fluency.",
+    color: "text-gold",
+    bg: "bg-gold/10",
+  },
+  {
+    icon: Users,
+    title: "Community Learning",
+    description: "Connect with native speakers, join study groups, and practice in a community-driven environment.",
+    color: "text-mint-dark",
+    bg: "bg-mint/40",
+  },
+  {
+    icon: Brain,
+    title: "JSVN AI Assistant",
+    description: "Your personal AI language tutor that adapts to your level, corrects mistakes, and keeps it fun.",
+    color: "text-primary",
+    bg: "bg-primary/10",
+  },
+];
+
+const FeaturesSection = () => {
+  return (
+    <section id="features" className="py-24 bg-background">
+      <div className="container mx-auto px-4">
+        <motion.div
+          className="text-center mb-16"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+        >
+          <span className="text-sm font-semibold text-primary uppercase tracking-wider">Features</span>
+          <h2 className="font-display text-3xl md:text-5xl font-bold mt-3 mb-4 text-foreground">
+            Language learning,{" "}
+            <span className="text-gradient-coral">reimagined.</span>
+          </h2>
+          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+            Forget boring drills. LinguaVibe teaches you the language people actually use.
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {features.map((feature, i) => (
+            <motion.div
+              key={feature.title}
+              className="group p-6 rounded-2xl bg-card shadow-card border border-border hover:shadow-elevated transition-all duration-300"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1 }}
+            >
+              <div className={`w-12 h-12 rounded-xl ${feature.bg} flex items-center justify-center mb-4`}>
+                <feature.icon className={`w-6 h-6 ${feature.color}`} />
+              </div>
+              <h3 className="font-display font-semibold text-lg text-card-foreground mb-2">{feature.title}</h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
+            </motion.div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default FeaturesSection;
