@@ -1,0 +1,200 @@
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { MessageCircle, X, Send, Bot, User, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+type Message = { role: "user" | "assistant"; content: string };
+
+const quickPrompts = [
+  "Teach me Spanish slang 🇪🇸",
+  "How do I say hello in Japanese? 🇯🇵",
+  "What's taboo to say in France? 🇫🇷",
+  "Quiz me on Korean phrases 🇰🇷",
+];
+
+const botResponses: Record<string, string> = {
+  default:
+    "Hey! I'm **JSVN**, your AI language buddy 🤖✨ Ask me about slang, cultural tips, translations, or just practice a conversation in any language! What vibe are we going for today?",
+};
+
+const getResponse = (input: string): string => {
+  const lower = input.toLowerCase();
+  if (lower.includes("spanish") || lower.includes("slang"))
+    return "¡Dale! 🇪🇸 Here's some fresh Spanish slang:\n\n• **Mola** — That's cool!\n• **Flipar** — To be amazed\n• **Tío/Tía** — Dude/Girl (casual)\n• **Quedada** — A meetup\n\nWant me to use these in a conversation? 💬";
+  if (lower.includes("hello") && lower.includes("japanese"))
+    return "In Japanese 🇯🇵:\n\n• **こんにちは** (Konnichiwa) — Hello (daytime)\n• **やあ** (Yaa) — Hey (casual)\n• **おっす** (Ossu) — Yo! (very casual, male)\n\nThe formality level matters a lot in Japanese! Want to learn more about keigo (polite speech)? 🎌";
+  if (lower.includes("taboo") || lower.includes("france"))
+    return "Great question! 🇫🇷 In France, avoid:\n\n• Don't say **\"Tu\"** to strangers — use **\"Vous\"** (formal you)\n• **\"Merde\"** is very common but still vulgar\n• Asking someone's salary is very taboo 💰\n• Don't kiss on first meeting in business settings\n\nWant polite alternatives for common phrases? 🤝";
+  if (lower.includes("korean") || lower.includes("quiz"))
+    return "Korean quiz time! 🇰🇷\n\n**What does 대박 (daebak) mean?**\n\nA) Thank you\nB) Amazing/Awesome\nC) Goodbye\nD) Sorry\n\nTake your guess! 🎯";
+  return `That's a great question! 🌍 Here's what I know about "${input.slice(0, 30)}...":\n\nLanguage learning is all about context and culture. Let me help you dive deeper — try asking about specific slang, cultural tips, or practice conversations!\n\nWhat language are you most curious about? 🗣️`;
+};
+
+const JsvnChatbot = () => {
+  const [open, setOpen] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([
+    { role: "assistant", content: botResponses.default },
+  ]);
+  const [input, setInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [messages, isTyping]);
+
+  const handleSend = (text?: string) => {
+    const msg = text || input.trim();
+    if (!msg) return;
+    setInput("");
+    setMessages((prev) => [...prev, { role: "user", content: msg }]);
+    setIsTyping(true);
+
+    setTimeout(() => {
+      setMessages((prev) => [...prev, { role: "assistant", content: getResponse(msg) }]);
+      setIsTyping(false);
+    }, 800 + Math.random() * 700);
+  };
+
+  return (
+    <>
+      <motion.button
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-primary shadow-coral flex items-center justify-center"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => setOpen(!open)}
+      >
+        <AnimatePresence mode="wait">
+          {open ? (
+            <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }}>
+              <X className="w-5 h-5 text-primary-foreground" />
+            </motion.div>
+          ) : (
+            <motion.div key="chat" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }}>
+              <MessageCircle className="w-5 h-5 text-primary-foreground" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className="fixed bottom-24 right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] h-[520px] rounded-2xl bg-card border border-border shadow-elevated flex flex-col overflow-hidden"
+          >
+            <div className="bg-navy px-5 py-4 flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center">
+                <Bot className="w-5 h-5 text-coral" />
+              </div>
+              <div>
+                <h3 className="font-display font-semibold text-primary-foreground text-sm flex items-center gap-1.5">
+                  JSVN AI <Sparkles className="w-3 h-3 text-gold" />
+                </h3>
+                <p className="text-xs text-primary-foreground/50">Your language learning buddy</p>
+              </div>
+            </div>
+
+            <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
+              {messages.map((msg, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`flex gap-2.5 ${msg.role === "user" ? "flex-row-reverse" : ""}`}
+                >
+                  <div className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center ${
+                    msg.role === "assistant" ? "bg-primary/10" : "bg-secondary/10"
+                  }`}>
+                    {msg.role === "assistant" ? (
+                      <Bot className="w-3.5 h-3.5 text-primary" />
+                    ) : (
+                      <User className="w-3.5 h-3.5 text-secondary" />
+                    )}
+                  </div>
+                  <div className={`max-w-[75%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
+                    msg.role === "assistant"
+                      ? "bg-muted text-foreground rounded-bl-md"
+                      : "bg-primary text-primary-foreground rounded-br-md"
+                  }`}>
+                    {msg.content.split("\n").map((line, j) => (
+                      <span key={j}>
+                        {line.split(/(\*\*.*?\*\*)/).map((part, k) =>
+                          part.startsWith("**") && part.endsWith("**") ? (
+                            <strong key={k}>{part.slice(2, -2)}</strong>
+                          ) : (
+                            part
+                          )
+                        )}
+                        {j < msg.content.split("\n").length - 1 && <br />}
+                      </span>
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
+              {isTyping && (
+                <div className="flex gap-2.5">
+                  <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Bot className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <div className="px-4 py-3 rounded-2xl rounded-bl-md bg-muted">
+                    <div className="flex gap-1">
+                      {[0, 1, 2].map((i) => (
+                        <motion.div
+                          key={i}
+                          className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40"
+                          animate={{ y: [0, -4, 0] }}
+                          transition={{ duration: 0.6, delay: i * 0.15, repeat: Infinity }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {messages.length <= 1 && (
+              <div className="px-4 pb-2 flex flex-wrap gap-1.5">
+                {quickPrompts.map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => handleSend(p)}
+                    className="px-3 py-1.5 text-xs rounded-full bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="p-3 border-t border-border">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSend();
+                }}
+                className="flex gap-2"
+              >
+                <input
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Ask JSVN anything..."
+                  className="flex-1 px-4 py-2.5 rounded-xl bg-muted text-foreground text-sm placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-ring"
+                />
+                <Button type="submit" size="icon" className="rounded-xl" disabled={!input.trim()}>
+                  <Send className="w-4 h-4" />
+                </Button>
+              </form>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+};
+
+export default JsvnChatbot;
